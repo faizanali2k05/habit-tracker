@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | HabitFlow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container"
+                style="text-align: left; margin-bottom: 3rem; display: flex; align-items: center; gap: 0.75rem;">
+                <img src="assets/logo.svg" alt="Logo" style="width: 32px; height: 32px;">
+                <h1 class="logo-text" style="font-size: 1.5rem;">HabitFlow</h1>
+            </div>
+
+            <nav>
+                <a href="#" class="nav-item active" id="nav-dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-tasks">
+                    <i class="fas fa-tasks"></i>
+                    <span>Tasks</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-habits">
+                    <i class="fas fa-redo"></i>
+                    <span>Habits</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div style="margin-top: auto; padding-top: 2rem;">
+                <button id="btn-logout" class="btn btn-secondary" style="justify-content: flex-start; border: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="mobile-menu-btn" class="btn btn-secondary"
+                        style="width: auto; padding: 0.5rem; display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 style="font-size: 1.75rem;">Welcome back, <span id="user-display-name">User</span>!</h2>
+                        <p style="color: var(--text-muted);">Here's what's happening today.</p>
+                    </div>
+                </div>
+            </header>
+
+            <div id="content-sections">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard" class="content-section">
+                    <!-- Stats Overview -->
+                    <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="glass-card">
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">Task Completion</p>
+                            <h3 style="font-size: 1.5rem; margin-top: 0.5rem;" id="stat-completion">--%</h3>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="stat-completion-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">Habits Today</p>
+                            <h3 style="font-size: 1.5rem; margin-top: 0.5rem;" id="stat-habits-today">0 / 0</h3>
+                        </div>
+                        <div class="glass-card">
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">Pending Tasks</p>
+                            <h3 style="font-size: 1.5rem; margin-top: 0.5rem;" id="stat-pending">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Pending Tasks Preview -->
+                    <section style="margin-top: 2.5rem;">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Pending Tasks</h3>
+                        <div class="grid-container" id="dashboard-pending-tasks">
+                            <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Loading...</p>
+                        </div>
+                    </section>
+
+                    <!-- Habits Preview -->
+                    <section style="margin-top: 2.5rem;">
+                        <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Your Habits</h3>
+                        <div class="grid-container" id="dashboard-habits-preview">
+                            <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Loading...</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Habits Section -->
+                <div id="section-habits" class="content-section" style="display: none;">
+                    <div class="glass-card" style="margin-bottom: 2rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="margin-bottom: 0;">My Habits</h3>
+                            <button class="btn btn-primary" id="add-habit-btn" style="width: auto;">
+                                <i class="fas fa-plus"></i>
+                                <span>Add New Habit</span>
+                            </button>
+                        </div>
+                        <div class="grid-container" id="habits-list-full">
+                            <!-- Habits will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Section -->
+                <div id="section-calendar" class="content-section" style="display: none;">
+                    <div class="glass-card" style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <button class="btn btn-secondary" id="cal-prev" style="width: auto;"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="cal-month-year" style="margin: 0;">Month Year</h3>
+                            <button class="btn btn-secondary" id="cal-next" style="width: auto;"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;"></div>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1rem;">Events on <span id="cal-selected-date">today</span></h3>
+                        <div id="cal-events-list"><p style="color: var(--text-muted);">Select a date to see events.</p></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div id="section-analytics" class="content-section" style="display: none;">
+                    <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                        <div class="glass-card">
+                            <h3 style="margin-bottom: 1rem;">Task Status</h3>
+                            <canvas id="chart-task-status" height="250"></canvas>
+                        </div>
+                        <div class="glass-card">
+                            <h3 style="margin-bottom: 1rem;">Task Priority</h3>
+                            <canvas id="chart-task-priority" height="250"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card" style="margin-top: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Habit Completion (Last 7 Days)</h3>
+                        <canvas id="chart-habit-weekly" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tasks Section -->
+                <div id="section-tasks" class="content-section" style="display: none;">
+                    <div class="glass-card" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Add New Task</h3>
+                        <div class="form-group">
+                            <label for="mainTaskTitle">Title</label>
+                            <input type="text" id="mainTaskTitle" class="form-input" placeholder="What needs to be done?">
+                        </div>
+                        <div class="form-group">
+                            <label for="mainTaskDesc">Description</label>
+                            <textarea id="mainTaskDesc" class="form-input" rows="3" placeholder="Add details..."></textarea>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="mainTaskPriority">Priority</label>
+                                <select id="mainTaskPriority" class="form-input">
+                                    <option value="High">High</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mainTaskDue">Due Date</label>
+                                <input type="date" id="mainTaskDue" class="form-input">
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button class="btn btn-primary" onclick="addTaskFromMain()">Add Task</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-container" id="tasks-list-full">
+                        <!-- Tasks list injected here -->
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="section-settings" class="content-section" style="display: none;">
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1.5rem;">Account Settings</h3>
+                        <p style="color: var(--text-muted);">Manage your preferences here.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals (Simplified) -->
+    <div id="habit-modal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="glass-card" style="width: 100%; max-width: 500px;">
+            <h3>Create New Habit</h3>
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label>Habit Name</label>
+                <input type="text" id="habit-name" class="form-input" placeholder="e.g. Drink Water">
+            </div>
+            <div class="form-group">
+                <label>Goal</label>
+                <input type="text" id="habit-goal" class="form-input" placeholder="e.g. 2 Liters">
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('habit-modal').style.display='none'">Cancel</button>
+                <button class="btn btn-primary" id="save-habit">Create Habit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/habits.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/realtime.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        document.getElementById('add-habit-btn').addEventListener('click', () => {
+            document.getElementById('habit-modal').style.display = 'flex';
+        });
+    </script>
+</body>
+
+</html>
