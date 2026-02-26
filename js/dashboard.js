@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Update UI with user info
     const userDisplay = document.getElementById('user-display-name');
     if (userDisplay) {
-        userDisplay.textContent = data.user.email.split('@')[0];
+        // prefer full_name or username stored in metadata
+        const meta = data.user.user_metadata || {};
+        userDisplay.textContent = meta.full_name || meta.username || data.user.email.split('@')[0];
     }
 
     // Mobile Menu Toggle

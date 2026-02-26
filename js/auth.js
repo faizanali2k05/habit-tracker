@@ -2,13 +2,20 @@
 async function signup() {
     const email = document.getElementById("signup-email") ? document.getElementById("signup-email").value : document.getElementById("email").value;
     const password = document.getElementById("signup-password") ? document.getElementById("signup-password").value : document.getElementById("password").value;
+    const username = document.getElementById("signup-username") ? document.getElementById("signup-username").value.trim() : '';
 
     const { error } = await supabaseClient.auth.signUp({
         email,
         password
-    });
+    }, { data: { username } });
 
-    alert(error ? error.message : "Signup successful!");
+    if (error) {
+        alert(error.message);
+    } else {
+        alert('Signup successful! Please check your email to confirm.');
+        // redirect after short delay
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 500);
+    }
 }
 
 async function login() {

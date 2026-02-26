@@ -56,8 +56,27 @@ function renderHabits(habits, loggedIds) {
         return;
     }
 
-    habits.forEach(habit => {
-        const logged = loggedIds.includes(habit.id);
+    const completed = habits.filter(h => loggedIds.includes(h.id));
+    const pending = habits.filter(h => !loggedIds.includes(h.id));
+
+    const makeHeader = (text) => {
+        const h = document.createElement('h4');
+        h.style.color = 'var(--text-muted)';
+        h.style.margin = '1.5rem 0 0.5rem';
+        h.textContent = text;
+        habitsListFull.appendChild(h);
+    };
+
+    if (pending.length) {
+        makeHeader('Pending Habits');
+        pending.forEach(habit => appendHabitCard(habit, false));
+    }
+    if (completed.length) {
+        makeHeader('Completed Habits');
+        completed.forEach(habit => appendHabitCard(habit, true));
+    }
+
+    function appendHabitCard(habit, logged) {
         const card = document.createElement('div');
         card.className = 'glass-card item-card animate-fade-in';
         card.innerHTML = `
@@ -66,14 +85,15 @@ function renderHabits(habits, loggedIds) {
                     <span class="tag">${habit.frequency || 'Daily'}</span>
                     <h4 style="margin-top: 0.5rem; ${logged ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${habit.name}</h4>
                 </div>
-                <button class="btn btn-secondary log-habit-btn" data-id="${habit.id}" style="width: auto; padding: 0.5rem; ${logged ? 'opacity: 0.4; pointer-events: none;' : ''}">
-                    <i class="fas fa-check" style="${logged ? 'color: var(--success);' : ''}"></i>
-                </button>
+                <label class="switch small">
+                    <input type="checkbox" class="habit-toggle-input" data-id="${habit.id}" ${logged ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${logged ? 'Completed today!' : 'Tap check to log'}</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${logged ? 'Completed today!' : 'Tap toggle to log'}</p>
         `;
         habitsListFull.appendChild(card);
-    });
+    }
 
     attachHabitLogListeners();
 }
@@ -88,8 +108,27 @@ function renderDashboardHabits(habits, loggedIds) {
         return;
     }
 
-    habits.forEach(habit => {
-        const logged = loggedIds.includes(habit.id);
+    const pending = habits.filter(h => !loggedIds.includes(h.id));
+    const done = habits.filter(h => loggedIds.includes(h.id));
+
+    const addHeader = (text) => {
+        const h = document.createElement('h4');
+        h.style.color = 'var(--text-muted)';
+        h.style.margin = '1rem 0 0.5rem';
+        h.textContent = text;
+        container.appendChild(h);
+    };
+
+    if (pending.length) {
+        addHeader('Pending');
+        pending.forEach(habit => appendPreview(habit, false));
+    }
+    if (done.length) {
+        addHeader('Completed');
+        done.forEach(habit => appendPreview(habit, true));
+    }
+
+    function appendPreview(habit, logged) {
         const card = document.createElement('div');
         card.className = 'glass-card item-card animate-fade-in';
         card.innerHTML = `
@@ -98,13 +137,14 @@ function renderDashboardHabits(habits, loggedIds) {
                     <span class="tag">${habit.frequency || 'Daily'}</span>
                     <h4 style="margin-top: 0.5rem; ${logged ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${habit.name}</h4>
                 </div>
-                <button class="btn btn-secondary log-habit-btn" data-id="${habit.id}" style="width: auto; padding: 0.5rem; ${logged ? 'opacity: 0.4; pointer-events: none;' : ''}">
-                    <i class="fas fa-check" style="${logged ? 'color: var(--success);' : ''}"></i>
-                </button>
+                <label class="switch small">
+                    <input type="checkbox" class="habit-toggle-input" data-id="${habit.id}" ${logged ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
             </div>
         `;
         container.appendChild(card);
-    });
+    }
 
     attachHabitLogListeners();
 }
@@ -121,13 +161,14 @@ function attachHabitLogListeners() {
     if (habitListenerAttached) return;
     habitListenerAttached = true;
 
-    document.addEventListener('click', async (e) => {
-        const btn = e.target.closest && e.target.closest('.log-habit-btn');
-        if (!btn) return;
+    document.addEventListener('change', async (e) => {
+        const input = e.target.closest && e.target.closest('.habit-toggle-input');
+        if (!input) return;
 
-        const habitId = btn.getAttribute('data-id');
-        if (!habitId) return; // guard against empty ids
+        const habitId = input.getAttribute('data-id');
+        if (!habitId) return;
         const today = formatDateLocal();
+        const checked = input.checked;
 
         // fetch habit name for notification
         let habitName = '';
@@ -136,23 +177,36 @@ function attachHabitLogListeners() {
             if (!hErr && habitData) habitName = habitData.name || '';
         } catch (e) { /* ignore */ }
 
-        const { error } = await supabaseClient
-            .from('habit_logs')
-            .insert([{ habit_id: habitId, completed_date: today }]);
-
-        if (error) {
-            alert(error.message);
-        } else {
-            fetchHabits();
-            console.log('Habit logged, creating notification...');
-            if (window.NotificationsUI && window.NotificationsUI.createNotification) {
-                console.log('NotificationsUI available, creating habit notification');
-                window.NotificationsUI.createNotification({ type: 'habit_completed', title: `Habit completed: ${habitName || 'Habit'}`, body: habitName || '', habit_id: habitId });
-                if (NotificationsUI.loadAndRenderSection) {
-                    NotificationsUI.loadAndRenderSection();
-                }
+        if (checked) {
+            const { error } = await supabaseClient
+                .from('habit_logs')
+                .insert([{ habit_id: habitId, completed_date: today }]);
+            if (error) {
+                alert(error.message);
             } else {
-                console.warn('NotificationsUI not available for habit notification');
+                fetchHabits();
+                console.log('Habit logged, creating notification...');
+                if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                    console.log('NotificationsUI available, creating habit notification');
+                    window.NotificationsUI.createNotification({ type: 'habit_completed', title: `Habit completed: ${habitName || 'Habit'}`, body: habitName || '', habit_id: habitId });
+                    if (NotificationsUI.loadAndRenderSection) {
+                        NotificationsUI.loadAndRenderSection();
+                    }
+                } else {
+                    console.warn('NotificationsUI not available for habit notification');
+                }
+            }
+        } else {
+            // remove today's log
+            const { error } = await supabaseClient
+                .from('habit_logs')
+                .delete()
+                .eq('habit_id', habitId)
+                .eq('completed_date', today);
+            if (error) {
+                console.error('Failed removing habit log', error);
+            } else {
+                fetchHabits();
             }
         }
     });

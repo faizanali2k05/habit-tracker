@@ -234,7 +234,15 @@
                 <div id="section-settings" class="content-section" style="display: none;">
                     <div class="glass-card">
                         <h3 style="margin-bottom: 1.5rem;">Account Settings</h3>
-                        <p style="color: var(--text-muted);">Manage your preferences here.</p>
+                        <div class="form-group">
+                            <label for="profile-username">Username</label>
+                            <input type="text" id="profile-username" class="form-input" placeholder="your username">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-name">Display Name</label>
+                            <input type="text" id="profile-name" class="form-input" placeholder="your name">
+                        </div>
+                        <button class="btn btn-primary" id="profile-save-btn" style="margin-top:1rem;">Save Changes</button>
                     </div>
                 </div>
             </div>
@@ -277,6 +285,40 @@
     <script>
         document.getElementById('add-habit-btn').addEventListener('click', () => {
             document.getElementById('habit-modal').style.display = 'flex';
+        });
+
+        // profile load/save
+        async function loadProfile() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+            const meta = user.user_metadata || {};
+            const uname = document.getElementById('profile-username');
+            const fullname = document.getElementById('profile-name');
+            if (uname) uname.value = meta.username || '';
+            if (fullname) fullname.value = meta.full_name || '';
+        }
+
+        async function saveProfile() {
+            const uname = document.getElementById('profile-username').value.trim();
+            const fullname = document.getElementById('profile-name').value.trim();
+            const { data: { user }, error } = await supabaseClient.auth.updateUser({ data: { username: uname, full_name: fullname } });
+            if (error) {
+                alert(error.message);
+            } else {
+                alert('Profile updated');
+                // update display name if header visible
+                const userDisplay = document.getElementById('user-display-name');
+                if (userDisplay) {
+                    const meta = (user && user.user_metadata) || {};
+                    userDisplay.textContent = meta.full_name || meta.username || userDisplay.textContent;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveBtn = document.getElementById('profile-save-btn');
+            if (saveBtn) saveBtn.addEventListener('click', saveProfile);
+            loadProfile();
         });
     </script>
 </body>

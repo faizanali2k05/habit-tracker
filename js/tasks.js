@@ -30,7 +30,28 @@ function renderTasks(tasks) {
         return;
     }
 
-    tasks.forEach(task => {
+    // split tasks based on completion
+    const pending = tasks.filter(t => t.status !== 'completed');
+    const completed = tasks.filter(t => t.status === 'completed');
+
+    const makeSection = (title) => {
+        const header = document.createElement('h4');
+        header.style.color = 'var(--text-muted)';
+        header.style.margin = '1.5rem 0 0.5rem';
+        header.textContent = title;
+        tasksList.appendChild(header);
+    };
+
+    if (pending.length) {
+        makeSection('Pending Tasks');
+        pending.forEach(task => appendTaskCard(task));
+    }
+    if (completed.length) {
+        makeSection('Completed Tasks');
+        completed.forEach(task => appendTaskCard(task));
+    }
+
+    function appendTaskCard(task) {
         const card = document.createElement('div');
         card.className = 'glass-card item-card animate-fade-in';
         card.innerHTML = `
@@ -39,9 +60,10 @@ function renderTasks(tasks) {
                     <span class="tag ${task.priority}">${task.priority}</span>
                     <h4 style="margin-top: 0.5rem; ${task.status === 'completed' ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${task.title}</h4>
                 </div>
-                <button class="btn btn-secondary toggle-task-btn" data-id="${task.id}" data-status="${task.status}" style="width: auto; padding: 0.5rem;">
-                    <i class="fas ${task.status === 'completed' ? 'fa-check-circle' : 'fa-circle'}" style="${task.status === 'completed' ? 'color: var(--success);' : ''}"></i>
-                </button>
+                <label class="switch small">
+                    <input type="checkbox" class="toggle-task-input" data-id="${task.id}" ${task.status === 'completed' ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
             </div>
             <p style="font-size: 0.875rem; color: var(--text-muted);">${task.description || 'No description'}</p>
             <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
@@ -50,14 +72,13 @@ function renderTasks(tasks) {
             </div>
         `;
         tasksList.appendChild(card);
-    });
+    }
 
-    // Add toggle listeners
-    document.querySelectorAll('#tasks-list-full .toggle-task-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const currentStatus = btn.getAttribute('data-status');
-            const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
+    // Add toggle listeners for sliders
+    document.querySelectorAll('#tasks-list-full .toggle-task-input').forEach(input => {
+        input.addEventListener('change', async () => {
+            const id = input.getAttribute('data-id');
+            const newStatus = input.checked ? 'completed' : 'pending';
 
             // fetch title for notification
             let titleText = '';
@@ -111,18 +132,19 @@ function renderDashboardPendingTasks(tasks) {
                     <span class="tag ${task.priority}">${task.priority}</span>
                     <h4 style="margin-top: 0.5rem;">${task.title}</h4>
                 </div>
-                <button class="btn btn-secondary dash-toggle-btn" data-id="${task.id}" style="width: auto; padding: 0.5rem;">
-                    <i class="fas fa-check"></i>
-                </button>
+                <label class="switch small">
+                    <input type="checkbox" class="dash-toggle-input" data-id="${task.id}" ${task.status === 'completed' ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
             </div>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">${task.due_date ? 'Due: ' + task.due_date : 'No due date'}</p>
         `;
         container.appendChild(card);
     });
 
-    document.querySelectorAll('.dash-toggle-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
+    document.querySelectorAll('.dash-toggle-input').forEach(input => {
+        input.addEventListener('change', async () => {
+            const id = input.getAttribute('data-id');
 
             let titleText = '';
             try {
@@ -130,21 +152,21 @@ function renderDashboardPendingTasks(tasks) {
                 if (!tErr && taskData) titleText = taskData.title || '';
             } catch (e) { /* ignore */ }
 
+            const newStatus = input.checked ? 'completed' : 'pending';
             const { error } = await supabaseClient
                 .from('tasks')
-                .update({ status: 'completed' })
+                .update({ status: newStatus })
                 .eq('id', id);
             if (!error) {
                 fetchTasks();
-                console.log('Task marked complete, creating notification...');
-                if (window.NotificationsUI && window.NotificationsUI.createNotification) {
-                    console.log('NotificationsUI available, creating notification');
-                    await window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: `You've completed: ${titleText}`, task_id: id });
-                    if (NotificationsUI.loadAndRenderSection) {
-                        await NotificationsUI.loadAndRenderSection();
+                if (newStatus === 'completed') {
+                    console.log('Task marked complete (dashboard), creating notification...');
+                    if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                        await window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: `You've completed: ${titleText}`, task_id: id });
+                        if (NotificationsUI.loadAndRenderSection) {
+                            await NotificationsUI.loadAndRenderSection();
+                        }
                     }
-                } else {
-                    console.warn('NotificationsUI not available or createNotification not found');
                 }
             }
         });
