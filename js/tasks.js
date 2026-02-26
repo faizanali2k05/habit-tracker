@@ -77,9 +77,9 @@ function renderTasks(tasks) {
                     console.log('Task marked complete, creating notification...');
                     if (window.NotificationsUI && window.NotificationsUI.createNotification) {
                         console.log('NotificationsUI available, creating notification');
-                        window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: titleText || '', task_id: id });
+                        await window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: `You've completed: ${titleText}`, task_id: id });
                         if (NotificationsUI.loadAndRenderSection) {
-                            NotificationsUI.loadAndRenderSection();
+                            await NotificationsUI.loadAndRenderSection();
                         }
                     } else {
                         console.warn('NotificationsUI not available or createNotification not found');
@@ -136,17 +136,15 @@ function renderDashboardPendingTasks(tasks) {
                 .eq('id', id);
             if (!error) {
                 fetchTasks();
-                if (newStatus === 'completed') {
-                    console.log('Task marked complete, creating notification...');
-                    if (window.NotificationsUI && window.NotificationsUI.createNotification) {
-                        console.log('NotificationsUI available, creating notification');
-                        window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: titleText || '', task_id: id });
-                        if (NotificationsUI.loadAndRenderSection) {
-                            NotificationsUI.loadAndRenderSection();
-                        }
-                    } else {
-                        console.warn('NotificationsUI not available or createNotification not found');
+                console.log('Task marked complete, creating notification...');
+                if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                    console.log('NotificationsUI available, creating notification');
+                    await window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: `You've completed: ${titleText}`, task_id: id });
+                    if (NotificationsUI.loadAndRenderSection) {
+                        await NotificationsUI.loadAndRenderSection();
                     }
+                } else {
+                    console.warn('NotificationsUI not available or createNotification not found');
                 }
             }
         });

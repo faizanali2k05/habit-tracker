@@ -57,11 +57,14 @@ body {
 /* Auth Pages */
 .auth-container {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
     background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 .auth-card {
@@ -103,6 +106,8 @@ body {
     padding: 0.75rem 1rem;
     color: var(--text-main);
     transition: all 0.2s;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
 }
 
 .form-input:focus {
@@ -151,17 +156,22 @@ body {
     display: grid;
     grid-template-columns: 280px 1fr;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .sidebar {
     background: var(--bg-card);
     border-right: 1px solid var(--glass-border);
     padding: 2rem 1.5rem;
+    padding-top: max(2rem, env(safe-area-inset-top));
 }
 
 .main-content {
     padding: 2rem;
     overflow-y: auto;
+    padding-top: max(2rem, env(safe-area-inset-top));
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
 }
 
 .nav-item {
@@ -263,9 +273,16 @@ body {
 /* Habit/Task Cards */
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 }
 
 .item-card {
@@ -337,6 +354,11 @@ body {
         display: flex !important;
         flex-direction: column;
         box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        padding-top: max(2rem, env(safe-area-inset-top));
+        padding-left: max(1.5rem, env(safe-area-inset-left));
+        padding-right: max(1.5rem, env(safe-area-inset-right));
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        overflow-y: auto;
     }
 
     .sidebar.open {
@@ -358,6 +380,10 @@ body {
 
     .main-content {
         padding: 1.5rem;
+        padding-top: max(1.5rem, env(safe-area-inset-top));
+        padding-left: max(1.5rem, env(safe-area-inset-left));
+        padding-right: max(1.5rem, env(safe-area-inset-right));
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
     }
 
     .logo-container h1 { font-size: 1.25rem !important; }
@@ -367,3 +393,143 @@ textarea.form-input { resize: vertical; min-height: 80px; font-family: 'Inter', 
 select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer; }
 select.form-input option { background: var(--bg-card); color: var(--text-main); }
 #calendar-grid > div:hover { transform: scale(1.05); }
+
+/* Calendar Mobile Optimization */
+#calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+}
+
+#calendar-grid > div {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    word-break: break-word;
+}
+
+@media (max-width: 768px) {
+    #calendar-grid > div {
+        padding: 0.375rem;
+        min-height: 42px;
+        font-size: 0.75rem;
+    }
+
+    #calendar-grid > div span:first-child {
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 480px) {
+    #calendar-grid > div {
+        padding: 0.25rem;
+        min-height: 36px;
+        font-size: 0.65rem;
+    }
+}
+
+/* Enhanced Mobile Styles */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1rem;
+    }
+
+    h2 { font-size: 1.25rem !important; }
+    h3 { font-size: 1.1rem !important; }
+    h4 { font-size: 0.95rem !important; }
+
+    .item-card {
+        margin-bottom: 0.5rem;
+    }
+
+    .item-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .log-habit-btn {
+        align-self: flex-end;
+        margin-top: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .glass-card {
+        padding: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+    }
+
+    .form-input {
+        padding: 0.6rem 0.875rem;
+        font-size: 16px;
+    }
+
+    #habit-modal > div {
+        margin: 1rem !important;
+        width: calc(100% - 2rem) !important;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .item-card h4 {
+        font-size: 0.9rem;
+    }
+
+    .tag {
+        font-size: 0.65rem !important;
+    }
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) {
+    #calendar-grid > div {
+        transform: none;
+    }
+
+    #calendar-grid > div:active {
+        background: rgba(99, 102, 241, 0.4) !important;
+    }
+
+    .btn {
+        min-height: 44px;
+    }
+
+    .nav-item {
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* Modal Mobile */
+#habit-modal {
+    padding: 1rem;
+}
+
+#habit-modal > div {
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}

@@ -83,7 +83,7 @@ function renderCalendar() {
     for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const cell = document.createElement('div');
-        cell.style.cssText = 'padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; position: relative; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;';
+        cell.style.cssText = 'padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; position: relative; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center;';
 
         // Highlight today
         if (dateStr === todayStr) {
@@ -106,9 +106,15 @@ function renderCalendar() {
             </div>`;
         }
 
+        const isDragDevice = window.matchMedia("(pointer:coarse)").matches;
+        
         cell.addEventListener('click', () => showDayEvents(dateStr));
-        cell.addEventListener('mouseenter', () => { if (dateStr !== todayStr) cell.style.background = 'rgba(99,102,241,0.3)'; });
-        cell.addEventListener('mouseleave', () => { if (dateStr !== todayStr) cell.style.background = 'var(--glass)'; });
+        
+        // Only add hover effects on non-touch devices
+        if (!isDragDevice) {
+            cell.addEventListener('mouseenter', () => { if (dateStr !== todayStr) cell.style.background = 'rgba(99,102,241,0.3)'; });
+            cell.addEventListener('mouseleave', () => { if (dateStr !== todayStr) cell.style.background = 'var(--glass)'; });
+        }
 
         grid.appendChild(cell);
     }

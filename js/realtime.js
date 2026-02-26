@@ -28,6 +28,16 @@ async function setupRealtime() {
             if (typeof loadCalendarData === 'function') loadCalendarData();
         })
         .subscribe();
+
+    // Notifications: refresh notifications when new ones arrive
+    supabaseClient.channel('realtime-notifications')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, payload => {
+            console.log('New notification arrived:', payload.new);
+            if (window.NotificationsUI && window.NotificationsUI.loadAndRender) {
+                window.NotificationsUI.loadAndRender();
+            }
+        })
+        .subscribe();
 }
 
 setupRealtime();

@@ -3,7 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Dashboard | HabitFlow</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,19 +68,19 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 200px;">
                     <button id="mobile-menu-btn" class="btn btn-secondary"
-                        style="width: auto; padding: 0.5rem; display: none;">
+                        style="width: auto; padding: 0.5rem; display: none; flex-shrink: 0;">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div>
-                        <h2 style="font-size: 1.75rem;">Welcome back, <span id="user-display-name">User</span>!</h2>
-                        <p style="color: var(--text-muted);">Here's what's happening today.</p>
+                    <div style="min-width: 0;">
+                        <h2 style="font-size: clamp(1.25rem, 5vw, 1.75rem); margin-bottom: 0.25rem;">Welcome back, <span id="user-display-name">User</span>!</h2>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Here's what's happening today.</p>
                     </div>
                 </div>
                 <!-- Notifications menu -->
-                <div style="display:flex; align-items:center; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:1rem; flex-shrink: 0;">
                     <div class="notif-menu">
                         <button id="notif-button" class="btn btn-secondary" title="Notifications">
                             <i class="fas fa-bell"></i>
@@ -131,9 +134,9 @@
                 <div id="section-habits" class="content-section" style="display: none;">
                     <div class="glass-card" style="margin-bottom: 2rem;">
                         <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                            <h3 style="margin-bottom: 0;">My Habits</h3>
-                            <button class="btn btn-primary" id="add-habit-btn" style="width: auto;">
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+                            <h3 style="margin-bottom: 0; flex: 1;">My Habits</h3>
+                            <button class="btn btn-primary" id="add-habit-btn" style="width: auto; white-space: nowrap;">
                                 <i class="fas fa-plus"></i>
                                 <span>Add New Habit</span>
                             </button>
@@ -147,12 +150,12 @@
                 <!-- Calendar Section -->
                 <div id="section-calendar" class="content-section" style="display: none;">
                     <div class="glass-card" style="margin-bottom: 2rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                            <button class="btn btn-secondary" id="cal-prev" style="width: auto;"><i class="fas fa-chevron-left"></i></button>
-                            <h3 id="cal-month-year" style="margin: 0;">Month Year</h3>
-                            <button class="btn btn-secondary" id="cal-next" style="width: auto;"><i class="fas fa-chevron-right"></i></button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" id="cal-prev" style="width: auto; flex-shrink: 0;"><i class="fas fa-chevron-left"></i></button>
+                            <h3 id="cal-month-year" style="margin: 0; text-align: center; flex: 1; min-width: 200px;">Month Year</h3>
+                            <button class="btn btn-secondary" id="cal-next" style="width: auto; flex-shrink: 0;"><i class="fas fa-chevron-right"></i></button>
                         </div>
-                        <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;"></div>
+                        <div id="calendar-grid"></div>
                     </div>
                     <div class="glass-card">
                         <h3 style="margin-bottom: 1rem;">Events on <span id="cal-selected-date">today</span></h3>
@@ -162,19 +165,19 @@
 
                 <!-- Analytics Section -->
                 <div id="section-analytics" class="content-section" style="display: none;">
-                    <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                    <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                         <div class="glass-card">
                             <h3 style="margin-bottom: 1rem;">Task Status</h3>
-                            <canvas id="chart-task-status" height="250"></canvas>
+                            <canvas id="chart-task-status" height="250" style="max-width: 100%;"></canvas>
                         </div>
                         <div class="glass-card">
                             <h3 style="margin-bottom: 1rem;">Task Priority</h3>
-                            <canvas id="chart-task-priority" height="250"></canvas>
+                            <canvas id="chart-task-priority" height="250" style="max-width: 100%;"></canvas>
                         </div>
                     </div>
                     <div class="glass-card" style="margin-top: 2rem;">
                         <h3 style="margin-bottom: 1rem;">Habit Completion (Last 7 Days)</h3>
-                        <canvas id="chart-habit-weekly" height="200"></canvas>
+                        <canvas id="chart-habit-weekly" height="200" style="max-width: 100%;"></canvas>
                     </div>
                 </div>
 
@@ -190,7 +193,7 @@
                             <label for="mainTaskDesc">Description</label>
                             <textarea id="mainTaskDesc" class="form-input" rows="3" placeholder="Add details..."></textarea>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
                             <div class="form-group">
                                 <label for="mainTaskPriority">Priority</label>
                                 <select id="mainTaskPriority" class="form-input">
@@ -240,8 +243,8 @@
 
     <!-- Modals (Simplified) -->
     <div id="habit-modal"
-        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="glass-card" style="width: 100%; max-width: 500px;">
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto;">
+        <div class="glass-card" style="width: 100%; max-width: 500px; margin: auto;">
             <h3>Create New Habit</h3>
             <div class="form-group" style="margin-top: 1.5rem;">
                 <label>Habit Name</label>
@@ -251,7 +254,7 @@
                 <label>Goal</label>
                 <input type="text" id="habit-goal" class="form-input" placeholder="e.g. 2 Liters">
             </div>
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
                 <button class="btn btn-secondary"
                     onclick="document.getElementById('habit-modal').style.display='none'">Cancel</button>
                 <button class="btn btn-primary" id="save-habit">Create Habit</button>

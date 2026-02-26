@@ -223,12 +223,16 @@
 // Notifications Logic
 function requestNotificationPermission() {
     if ('Notification' in window) {
-        Notification.requestPermission();
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                console.log('Notification permission:', permission);
+            });
+        }
     }
 }
 
 function showNotification(title, options) {
-    if (Notification.permission === 'granted') {
+    if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(title, options);
     }
 }
