@@ -3,6 +3,13 @@ let calCurrentDate = new Date();
 let calTasks = [];
 let calHabitLogs = [];
 
+function formatDateLocal(d = new Date()) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 async function loadCalendarData() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
@@ -64,7 +71,7 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = formatDateLocal(today);
 
     // Empty cells before first day
     for (let i = 0; i < firstDay; i++) {
@@ -151,14 +158,17 @@ function showDayEvents(dateStr) {
 }
 
 // Navigation
-document.getElementById('cal-prev').addEventListener('click', () => {
+const calPrev = document.getElementById('cal-prev');
+if (calPrev) calPrev.addEventListener('click', () => {
     calCurrentDate.setMonth(calCurrentDate.getMonth() - 1);
     renderCalendar();
 });
 
-document.getElementById('cal-next').addEventListener('click', () => {
+const calNext = document.getElementById('cal-next');
+if (calNext) calNext.addEventListener('click', () => {
     calCurrentDate.setMonth(calCurrentDate.getMonth() + 1);
     renderCalendar();
 });
 
-document.getElementById('nav-calendar').addEventListener('click', loadCalendarData);
+const navCalendarEl = document.getElementById('nav-calendar');
+if (navCalendarEl) navCalendarEl.addEventListener('click', loadCalendarData);

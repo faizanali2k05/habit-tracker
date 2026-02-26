@@ -59,12 +59,33 @@ function renderTasks(tasks) {
             const currentStatus = btn.getAttribute('data-status');
             const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
 
+            // fetch title for notification
+            let titleText = '';
+            try {
+                const { data: taskData, error: tErr } = await supabaseClient.from('tasks').select('title').eq('id', id).single();
+                if (!tErr && taskData) titleText = taskData.title || '';
+            } catch (e) { /* ignore */ }
+
             const { error } = await supabaseClient
                 .from('tasks')
                 .update({ status: newStatus })
                 .eq('id', id);
 
-            if (!error) fetchTasks();
+            if (!error) {
+                fetchTasks();
+                if (newStatus === 'completed') {
+                    console.log('Task marked complete, creating notification...');
+                    if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                        console.log('NotificationsUI available, creating notification');
+                        window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: titleText || '', task_id: id });
+                        if (NotificationsUI.loadAndRenderSection) {
+                            NotificationsUI.loadAndRenderSection();
+                        }
+                    } else {
+                        console.warn('NotificationsUI not available or createNotification not found');
+                    }
+                }
+            }
         });
     });
 }
@@ -101,11 +122,33 @@ function renderDashboardPendingTasks(tasks) {
 
     document.querySelectorAll('.dash-toggle-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+
+            let titleText = '';
+            try {
+                const { data: taskData, error: tErr } = await supabaseClient.from('tasks').select('title').eq('id', id).single();
+                if (!tErr && taskData) titleText = taskData.title || '';
+            } catch (e) { /* ignore */ }
+
             const { error } = await supabaseClient
                 .from('tasks')
                 .update({ status: 'completed' })
-                .eq('id', btn.getAttribute('data-id'));
-            if (!error) fetchTasks();
+                .eq('id', id);
+            if (!error) {
+                fetchTasks();
+                if (newStatus === 'completed') {
+                    console.log('Task marked complete, creating notification...');
+                    if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                        console.log('NotificationsUI available, creating notification');
+                        window.NotificationsUI.createNotification({ type: 'task_completed', title: `Task completed: ${titleText || 'Task'}`, body: titleText || '', task_id: id });
+                        if (NotificationsUI.loadAndRenderSection) {
+                            NotificationsUI.loadAndRenderSection();
+                        }
+                    } else {
+                        console.warn('NotificationsUI not available or createNotification not found');
+                    }
+                }
+            }
         });
     });
 }
@@ -162,8 +205,10 @@ async function addTaskFromMain() {
 }
 
 // Initial fetch when nav to tasks
-document.getElementById('nav-tasks').addEventListener('click', fetchTasks);
-document.getElementById('nav-dashboard').addEventListener('click', fetchTasks);
+const navTasksEl = document.getElementById('nav-tasks');
+if (navTasksEl) navTasksEl.addEventListener('click', fetchTasks);
+const navDashboardForTasks = document.getElementById('nav-dashboard');
+if (navDashboardForTasks) navDashboardForTasks.addEventListener('click', fetchTasks);
 document.addEventListener('DOMContentLoaded', fetchTasks);
 
 // Expose to window

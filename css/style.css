@@ -186,6 +186,80 @@ body {
     font-size: 1.25rem;
 }
 
+/* Notifications menu */
+.notif-menu { position: relative; }
+.notif-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    background: var(--accent);
+    color: white;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    padding: 0 6px;
+    margin-left: 6px;
+    line-height: 18px;
+    text-align: center;
+}
+
+/* bell color states */
+.bell-green .fa-bell { color: #10b981; } /* green */
+.bell-red .fa-bell { color: #ef4444; } /* red */
+.notif-list {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 320px;
+    max-height: 360px;
+    overflow: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0.5rem 0;
+    list-style: none;
+    z-index: 1200;
+    display: none;
+}
+.notif-list.open { display: block; }
+.notif-list .notif-item { padding: 0.75rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.02); cursor: pointer; }
+.notif-list .notif-item.read { opacity: 0.6; }
+.notif-list .notif-title { font-weight: 600; margin-bottom: 0.25rem; }
+.notif-list .notif-body { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.notif-list .notif-meta { font-size: 0.75rem; color: var(--text-muted); }
+.notif-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.notif-action-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.4rem 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.notif-action-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Section view notifications list */
+#section-notifications .notif-list {
+    position: static;
+    width: 100%;
+    max-height: none;
+    border: none;
+    padding: 0;
+}
+#section-notifications .notif-list .notif-item {
+    padding: 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    background: var(--glass);
+}
+
 /* Habit/Task Cards */
 .grid-container {
     display: grid;

@@ -1,6 +1,16 @@
 // Habits Logic
 const saveHabitBtn = document.getElementById('save-habit');
 
+// Helper to format local date as YYYY-MM-DD (avoids UTC shift from toISOString)
+function formatDateLocal(d = new Date()) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+let habitListenerAttached = false;
+
 async function fetchHabits() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
@@ -15,8 +25,8 @@ async function fetchHabits() {
         return;
     }
 
-    // Load today's logs
-    const today = new Date().toISOString().split('T')[0];
+    // Load today's logs (use local date to avoid timezone issues)
+    const today = formatDateLocal();
     const habitIds = habits.map(h => h.id);
     let todayLogs = [];
 
@@ -107,27 +117,51 @@ function updateHabitsStat(habits, loggedIds) {
 }
 
 function attachHabitLogListeners() {
-    document.querySelectorAll('.log-habit-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const habitId = btn.getAttribute('data-id');
-            const today = new Date().toISOString().split('T')[0];
-            const { error } = await supabaseClient
-                .from('habit_logs')
-                .insert([{ habit_id: habitId, completed_date: today }]);
+    // Use event delegation and attach only once to avoid duplicate listeners
+    if (habitListenerAttached) return;
+    habitListenerAttached = true;
 
-            if (error) {
-                alert(error.message);
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest && e.target.closest('.log-habit-btn');
+        if (!btn) return;
+
+        const habitId = btn.getAttribute('data-id');
+        if (!habitId) return; // guard against empty ids
+        const today = formatDateLocal();
+
+        // fetch habit name for notification
+        let habitName = '';
+        try {
+            const { data: habitData, error: hErr } = await supabaseClient.from('habits').select('name').eq('id', habitId).single();
+            if (!hErr && habitData) habitName = habitData.name || '';
+        } catch (e) { /* ignore */ }
+
+        const { error } = await supabaseClient
+            .from('habit_logs')
+            .insert([{ habit_id: habitId, completed_date: today }]);
+
+        if (error) {
+            alert(error.message);
+        } else {
+            fetchHabits();
+            console.log('Habit logged, creating notification...');
+            if (window.NotificationsUI && window.NotificationsUI.createNotification) {
+                console.log('NotificationsUI available, creating habit notification');
+                window.NotificationsUI.createNotification({ type: 'habit_completed', title: `Habit completed: ${habitName || 'Habit'}`, body: habitName || '', habit_id: habitId });
+                if (NotificationsUI.loadAndRenderSection) {
+                    NotificationsUI.loadAndRenderSection();
+                }
             } else {
-                fetchHabits();
+                console.warn('NotificationsUI not available for habit notification');
             }
-        });
+        }
     });
 }
 
 if (saveHabitBtn) {
     saveHabitBtn.addEventListener('click', async () => {
         const nameInput = document.getElementById('habit-name');
-        const freqInput = document.getElementById('habit-goal');
+        const goalInput = document.getElementById('habit-goal');
         const name = nameInput.value;
         const { data: { user } } = await supabaseClient.auth.getUser();
 
@@ -141,7 +175,8 @@ if (saveHabitBtn) {
             .insert([{
                 name: name,
                 user_id: user.id,
-                frequency: freqInput.value || 'Daily'
+                frequency: 'Daily',
+                goal: goalInput ? goalInput.value || null : null
             }]);
 
         if (error) {
@@ -156,5 +191,7 @@ if (saveHabitBtn) {
 
 // Initial fetch & listener
 document.addEventListener('DOMContentLoaded', fetchHabits);
-document.getElementById('nav-habits').addEventListener('click', fetchHabits);
-document.getElementById('nav-dashboard').addEventListener('click', fetchHabits);
+const navHabits = document.getElementById('nav-habits');
+if (navHabits) navHabits.addEventListener('click', fetchHabits);
+const navDashboardForHabits = document.getElementById('nav-dashboard');
+if (navDashboardForHabits) navDashboardForHabits.addEventListener('click', fetchHabits);

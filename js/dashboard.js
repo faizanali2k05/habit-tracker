@@ -55,6 +55,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 section.style.display = section.id === targetId ? 'block' : 'none';
             });
 
+            // if notifications page opened, refresh list
+            if (targetId === 'section-notifications' && window.NotificationsUI && NotificationsUI.loadAndRenderSection) {
+                NotificationsUI.loadAndRenderSection();
+            }
+
             // Page Title Update
             const pageTitle = item.querySelector('span').textContent;
             document.title = `${pageTitle} | HabitFlow`;
